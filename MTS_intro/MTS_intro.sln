@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.32630.194
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTS_intro", "MTS_intro.csproj", "{2B58AA78-8B7A-4143-8121-6AE7636FDE45}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FirstTask", "FirstTask.csproj", "{2B58AA78-8B7A-4143-8121-6AE7636FDE45}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SecondTask", "..\SecondTask\SecondTask.csproj", "{A03995AF-2B48-4AFA-970B-52CCB0C31BE2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecondTask", "..\SecondTask\SecondTask.csproj", "{A03995AF-2B48-4AFA-970B-52CCB0C31BE2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
