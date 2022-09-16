@@ -23,9 +23,9 @@ class Program
             _number = Int32.Parse(s);
         }
 
-        public static string operator +(Number a, Number b) => new Number(a._number + b._number);
+        public static Number operator +(Number a, Number b) => new Number(a._number + b._number);
 
-        public static string operator +(Number a, string b) => a + new Number(b);
+        public static Number operator +(Number a, string b) => a + new Number(b);
 
         public static implicit operator string(Number a) => a.ToString();
         public override string ToString()
