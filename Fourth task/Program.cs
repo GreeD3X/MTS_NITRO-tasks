@@ -41,7 +41,10 @@ namespace ThirdTask
                 }
                 else
                 {
-                    sorted.Insert(curVal);
+                    if(curVal>=sorted.Last())
+                        sorted.AddLast(curVal);
+                    else
+                        sorted.Insert(curVal);
                 }
                 while (sorted.Count() > 0 && curMin <= minAfter)
                 {

@@ -159,7 +159,8 @@ public static IEnumerable<(T item, int? tail)> EnumerateFromTail<T>(this IEnumer
         }
 ```
 Здесь будет совершен один проход если мы можем получить заранее количество элементов в ```enumerable``` и два в обратном случае.
-В качестве вариантов реализации были рассмотрены: метод двух итераторов (первый пропускает ```tailLength``` элементов и пока он может двигаться заполняем ```(enumerator.Current, null)```, а после этого заполняем расстоянием до хвоста), рекурсивный спуск до хвоста с последующим развотом с помощью ```return recursive(...).Append(...);```
+В качестве вариантов реализации были рассмотрены: метод двух итераторов (первый пропускает ```tailLength``` элементов и пока он может двигаться заполняем ```(enumerator.Current, null)```, а после этого заполняем расстоянием до хвоста), рекурсивный спуск до хвоста с последующим развотом с помощью ```return recursive(...).Append(...);```.
+Рекурсивные метод действительно пройдется всего один раз, однако использование ```Append``` может быть очень затратной операцией, так как та каждый раз создает копию последовательности.
 
 ## Четвертое задание<a name="fourth"></a>
 Реализуйте метод ```Sort```. Известно, что потребители метода зачастую не будут вычитывать данные до конца. Оптимально ли Ваше решение с точки зрения скорости выполнения? С точки зрения потребляемой памяти? 
@@ -174,7 +175,97 @@ public static IEnumerable<(T item, int? tail)> EnumerateFromTail<T>(this IEnumer
 IEnumerable<int> Sort(IEnumerable<int> inputStream, int sortFactor, int maxValue) 
 ```
 
+Предложенный способ решения создеает ```LinkedList``` в котором хранит отсортированные значения, которые еще не готовы к показу пользователю. Как только мы достигаем такого элемента, что после него не будет чисел меньших, чем уже сохраненные, мы начинаем возвращать элементы пользователю. Потребление памяти, в худшем случае, будет достигать размеров изначального потока, если последовательность будет неубывающей. Затраты времени на вставку будут линейными.
 
+```c#
+        /// <summary> 
+        /// Возвращает отсортированный по возрастанию поток чисел 
+        /// </summary> 
+        /// <param name="inputStream">Поток чисел от 0 до maxValue. Длина потока не превышает миллиарда чисел.</param> 
+        /// <param name="sortFactor">Фактор упорядоченности потока. Неотрицательное число. Если в потоке встретилось число x, то в нём больше не встретятся числа меньше, чем (x - sortFactor).</param> 
+        /// <param name="maxValue">Максимально возможное значение чисел в потоке. Неотрицательное число, не превышающее 2000.</param> 
+        /// <returns>Отсортированный по возрастанию поток чисел.</returns> 
+    static IEnumerable<int> Sort(IEnumerable<int> inputStream, int sortFactor, int maxValue)
+    {
+        int curMin = int.MaxValue;
+        int minAfter = int.MaxValue;
+        IEnumerator<int> enumerator = inputStream.GetEnumerator();
+        enumerator.MoveNext();
+        minAfter = Math.Max(0, enumerator.Current - sortFactor);
+        curMin = enumerator.Current;
+        int curVal = enumerator.Current;
+        LinkedList<int> sorted = new LinkedList<int>();
+        while (true)
+        {
+            if (curVal < curMin)
+            {
+                if (curVal < minAfter)
+                {
+                    yield return curVal;
+                }
+                else
+                {
+                    curMin = curVal;
+                    sorted.AddFirst(curVal);
+                }
+
+            }
+            else
+            {
+            if(curVal>=sorted.Last())
+                sorted.AddLast(curVal);
+                else
+                    sorted.Insert(curVal);
+            }
+            while (sorted.Count() > 0 && curMin <= minAfter)
+            {
+                yield return sorted.First();
+                sorted.RemoveFirst();
+                if (sorted.Count() > 0)
+                    curMin = sorted.First();
+            }
+
+            if (!enumerator.MoveNext())
+                break;
+            else
+            {
+                curVal = enumerator.Current;
+                minAfter = Math.Max(curVal - sortFactor, minAfter);
+                curMin = Math.Min(curVal, curMin);
+            }
+        }
+        while(sorted.Count() > 0)
+        {
+            yield return sorted.First();
+            sorted.RemoveFirst();
+        }
+        yield break;
+    }
+
+    static void Insert(this LinkedList<int> list, int val)
+    {
+        if (list.Count() == 0)
+        {
+            list.AddFirst(val);
+            return;
+        }
+        LinkedListNode<int> cur = list.First;
+        while (cur.Value < val)
+        {
+            cur = cur.Next;
+            if (cur == null)
+                break;
+        }
+        if (cur == null)
+        {
+            list.AddLast(val);
+            return;
+        }
+        list.AddBefore(cur, val);
+        return;
+    }
+```
+LinkedList используется ради простоты вставки и удаления элементов.
 
 ## Пятое задание<a name="fifth"></a>
 Программа выводит на экран строку «Муха», а затем продолжает выполнять остальной код. Реализуйте метод TransformToElephant так, чтобы программа выводила на экран строку «Слон», а затем продолжала выполнять остальной код, не выводя перед этим на экран строку «Муха». 
